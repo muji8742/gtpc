@@ -240,7 +240,7 @@ void GtpcGenerator::generateCustomerAndHistory() {
 void GtpcGenerator::generateStock() {
    std::cout << "Generating 'Stock' node objects and ':wHasStock', ':iHasStock', ':hasSupplier' relationship objects .. " << std::flush;
    std::string header_s = "id|quantity|dist_01|dist_02|dist_03|dist_04|dist_05|dist_06|dist_07|dist_08|dist_09|"
-                        "dist_10|ytd|order_cnt|remote_cnt|data";
+                        "dist_10|ytd|order_cnt|remote_cnt|data|itemid";
    std::string header_wHasStock = "Warehouse_id|Stock_id";
    std::string header_iHasStock = "Item_id|Stock_id";
    std::string header_hasSupplier = "Stock_id|Supplier_id";
@@ -315,7 +315,7 @@ void GtpcGenerator::generateStock() {
          // @formatter:off
          s_csv << id /*<< s_i_id << s_w_id*/ << s_quantity << s_dist_01 << s_dist_02 << s_dist_03 << s_dist_04 << s_dist_05
                << s_dist_06 << s_dist_07 << s_dist_08 << s_dist_09 << s_dist_10 << s_ytd << s_order_cnt
-               << s_remote_cnt << s_data << csv::endl;
+               << s_remote_cnt << s_data << s_i_id << csv::endl;
          // @formatter:on
          wHasStock_csv << s_w_id << id << csv::endl;
          iHasStock_csv << s_i_id << id << csv::endl;
@@ -329,7 +329,7 @@ void GtpcGenerator::generateStock() {
 void GtpcGenerator::generateOrdersAndOrderLines() {
    std::cout << "Generating 'Order', 'OrderLine' node objects and ':hasPlaced', ':olHasStock', ':contains' relationship objects .. " << std::flush;
    std::string header_o = "id|entry_d|carrier_id|ol_cnt|all_local|new_order";
-   std::string header_ol = "id|number|delivery_d|quantity|amount|dist_info";
+   std::string header_ol = "id|number|delivery_d|quantity|amount|dist_info|orderid|districtid";
    std::string header_hasPlaced = "Customer_id|Order_id";
    std::string header_olHasStock = "OrderLine_id|Stock_id";
 //    std::string header_hasItem = "OrderLine.id|Item.id";
@@ -384,6 +384,7 @@ void GtpcGenerator::generateOrdersAndOrderLines() {
          for (o_c_id = 1; o_c_id<=kCustomerPerDistrict; o_c_id++) {
             id1++;
             id2 = customer_id_permutation[id1 - 1];
+            int64_t id5 = id2 / (kCustomerPerDistrict + 1) + 1;
             o_carrier_id = makeNumber(1L, 10L);
             // o_ol_cnt = DataSource::nextOderlineCount();
             o_ol_cnt = makeNumber(5L, 15L);
@@ -411,13 +412,13 @@ void GtpcGenerator::generateOrdersAndOrderLines() {
                   ol_amount = (float) (makeNumber(10L, 10000L)) / 100.0f;
                   // @formatter:off
                   ol_csv << id3 /*<< o_id << o_d_id << o_w_id*/ << ol_number /*<< ol_i_id << o_w_id*/ << kNullDate
-                         << ol_quantity << csv::Precision(2) << ol_amount << ol_dist_info << csv::endl;
+                         << ol_quantity << csv::Precision(2) << ol_amount << ol_dist_info << id1 << id5 << csv::endl;
                   // @formatter:on
                } else {
                   ol_amount = 0.0f;
                   // @formatter:off
                   ol_csv << id3 /*<< o_id << o_d_id << o_w_id*/ << ol_number /*<< ol_i_id << o_w_id*/
-                         << ol_del_d << ol_quantity << csv::Precision(2) << ol_amount << ol_dist_info << csv::endl;
+                         << ol_del_d << ol_quantity << csv::Precision(2) << ol_amount << ol_dist_info << id1 << id5 << csv::endl;
                   // @formatter:on
                }
                contains_csv << id1 << id3 << csv::endl;
